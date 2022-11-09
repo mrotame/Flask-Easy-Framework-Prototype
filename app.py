@@ -34,7 +34,7 @@ class App():
         for item in self.viewList:
             for route in item.routes:
                 logger.debug(f"Rota encontrada: {route} cadastrado com sucesso")
-                self.app.add_url_rule(route, view_func=item.as_view(item.name))
+                self.app.add_url_rule(route, view_func=item.as_view(item.name+'/'+route))
             logger.debug(f"Rota cadastrado com sucesso")
 
     def runApp(self)->None:

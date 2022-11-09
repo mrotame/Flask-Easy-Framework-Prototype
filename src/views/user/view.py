@@ -6,18 +6,19 @@ from src.serializers.userSerializer import UserSerializer
 
 class View(GenericApiView, flaskView):
     name = 'userView'
-    routes = ['/user']
+    routes = ['/user', '/user/', '/user/<string:id>']
     field_lookup = 'id'
+    methods=['GET','POST','PATCH']
     serializer = UserSerializer
 
-    def get(self):
-        if self.field_lookup in request.args:
-            self.singleEntity()
+    def get(self, *args, **kwargs):
+        if self.field_lookup in kwargs:
+            return self.getSingleEntity(*args, **kwargs)
         else:
-            self.listEntities()
+            return self.getAllEntities(*args, **kwargs)
 
-    def post(self): 
-        return 'ok'
+    def post(self, *args, **kwargs): 
+        return self.createEntity(*args, **kwargs)
 
-    def patch(self): 
-        return 'ok'
+    def patch(self, *args, **kwargs): 
+        return self.updateEntity(*args, **kwargs)
