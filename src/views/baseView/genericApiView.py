@@ -6,6 +6,7 @@ from src.serializers.baseSerializer import BaseSerializer
 from src.models.baseModel import BaseModel
 from marshmallow import ValidationError
 
+
 class GenericApiView(ABC):
     def __init__(self):
         self.serializer: BaseSerializer = self.serializer()
@@ -20,7 +21,11 @@ class GenericApiView(ABC):
     def serializer(self) -> BaseSerializer:pass
 
     def dispatch_request(self, *args, **kwargs):
+        self.validations(*args, **kwargs)
         return getattr(self, str(request.method).lower())(*args, **kwargs)
+
+    def validations(self):
+        pass
 
     def getSingleEntity(self, *args, **kwargs)->Dict[str,any]:
         model: BaseModel = self.model()
@@ -51,7 +56,7 @@ class GenericApiView(ABC):
 
         model: BaseModel = self.model().get_one(getattr(self.model, self.field_lookup) == kwargs[self.field_lookup])
         model.__dict__.update(serialized_data)
-        model = model.update()
+        model.update()
         return self.serializer.dump(model)
 
     def deleteEntity(self, deleteMethod: Literal['soft','hard'], *args, **kwargs)->Dict[str,any]:

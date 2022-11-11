@@ -1,3 +1,4 @@
+import typing as t
 from typing import List, Literal
 from ..database.base import base
 from sqlalchemy import Column, DateTime, Integer, SmallInteger
@@ -5,8 +6,7 @@ from src.database.database import Database
 from sqlalchemy.sql import func
 from datetime import datetime
 from flask import current_app
-from sqlalchemy.orm import Session
-
+from sqlalchemy.orm import Session, Query
 
 class BaseModel(base):
     __abstract__ = True
@@ -38,17 +38,29 @@ class BaseModel(base):
             dbSession.add(self)
             dbSession.commit()
             dbSession.refresh(self)
-            return self, 201
+            return self
 
     def update(self, *args, **kwargs):
         with self.getdbSession() as dbSession:
             dbSession.merge(self)
             dbSession.commit()
-            return self, 204
+            return self
 
     def delete(self, *args, **kwargs):
         with self.getdbSession() as dbSession:
             dbSession.delete(self)
             dbSession.commit()
-            
-            return 'deleted', 204
+
+            return self
+    
+    '''
+    # if needed, model can be self updated by merging after making the changes
+    # like the example below:
+    def selfChangeData(self, *args, **kwargs):
+        with self.getdbSession() as dbSession: # Start the session within scope
+            self.login = 'updatedFromBaseModel' # Change the data as you want
+            dbSession.merge(self) # Merge to the new session
+            dbSession.commit() # Commit the changes
+            # After that, any changes will not be stored even if commited.
+            return 'ok'
+    '''
