@@ -1,3 +1,4 @@
+from typing import List, Literal
 from ..database.base import base
 from sqlalchemy import Column, DateTime, Integer, SmallInteger
 from src.database.database import Database
@@ -24,32 +25,30 @@ class BaseModel(base):
                 self.db.session_scoped.remove()
         return DatabaseSession()
         
-    def get_one(self, model, *args, **kwargs):
+    def get_one(self, *args, **kwargs)-> 'BaseModel':
         with self.getdbSession() as dbSession:
-            return dbSession.query(model).filter(*args, **kwargs).first()
+            return dbSession.query(self.__class__).filter(*args, **kwargs).filter(self.__class__.deleted != 1).first()
 
-    def get_many(self, model, *args, **kwargs):
+    def get_many(self, *args, **kwargs)-> List['BaseModel']:
         with self.getdbSession() as dbSession:
-            return dbSession.query(model).filter(*args, **kwargs).all()
+            return dbSession.query(self.__class__).filter(*args, **kwargs).filter(self.__class__.deleted != 1).all()
 
-    def save(self, model, *args, **kwargs):
+    def save(self, *args, **kwargs):
         with self.getdbSession() as dbSession:
-            model = model(*args, **kwargs)
-            dbSession.add(model)
+            dbSession.add(self)
             dbSession.commit()
-            dbSession.refresh(model)
-            return model
+            dbSession.refresh(self)
+            return self, 201
 
-    def update(self, model, field_lookup, field_lookup_value, *args, **kwargs):
+    def update(self, *args, **kwargs):
         with self.getdbSession() as dbSession:
-            entity = dbSession.query(model).filter_by(**{field_lookup: field_lookup_value}).first()
-            for info in kwargs:
-                setattr(entity, info, kwargs[info])
+            dbSession.merge(self)
             dbSession.commit()
-            dbSession.refresh(entity)
-            return entity
+            return self, 204
 
-
-    def delete(self, model, field_lookup, softdelete, *args, **kwargs):
+    def delete(self, *args, **kwargs):
         with self.getdbSession() as dbSession:
-            pass
+            dbSession.delete(self)
+            dbSession.commit()
+            
+            return 'deleted', 204

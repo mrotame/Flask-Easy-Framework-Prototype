@@ -3,12 +3,11 @@ from flask.views import View as flaskView
 from ..baseView.genericApiView import GenericApiView
 from src.serializers.userSerializer import UserSerializer
 
-
 class View(GenericApiView, flaskView):
     name = 'userView'
     routes = ['/user', '/user/', '/user/<string:id>']
     field_lookup = 'id'
-    methods=['GET','POST','PATCH']
+    methods=['GET','POST','PATCH', 'DELETE']
     serializer = UserSerializer
 
     def get(self, *args, **kwargs):
@@ -22,3 +21,6 @@ class View(GenericApiView, flaskView):
 
     def patch(self, *args, **kwargs): 
         return self.updateEntity(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        return self.deleteEntity('soft', *args, **kwargs)

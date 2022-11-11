@@ -10,9 +10,9 @@ class UserSerializer(BaseSerializer):
     password = fields.Str(load_only=True, required=True)
     
 
-def validate_must_be_larger_than_6(self, data):
-    if len(data) != 6:
-        raise ValidationError("Password must have more than 5 chars")
+# def validate_must_be_larger_than_6(self, data):
+#     if len(data) != 6:
+#         raise ValidationError("Password must have more than 5 chars")
 
     
 

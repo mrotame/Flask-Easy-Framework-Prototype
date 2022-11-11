@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Literal
 from flask import request, current_app
 from sqlalchemy.orm import Session
 from abc import ABC, abstractmethod
@@ -23,15 +23,14 @@ class GenericApiView(ABC):
         return getattr(self, str(request.method).lower())(*args, **kwargs)
 
     def getSingleEntity(self, *args, **kwargs)->Dict[str,any]:
-        
         model: BaseModel = self.model()
-        res = model.get_one(self.model, getattr(self.model, self.field_lookup) == kwargs[self.field_lookup])
-        return self.serializer.dump(res)
+        model = model.get_one(getattr(self.model, self.field_lookup) == kwargs[self.field_lookup])
+        return self.serializer.dump(model)
 
     def getAllEntities(self, *args, **kwargs)->List[Dict[str,any]]:
         model: BaseModel = self.model()
-        res = model.get_many(self.model)
-        return [self.serializer.dump(res, many=True)]
+        res = model.get_many()
+        return self.serializer.dump(res, many=True)
 
     def createEntity(self, *args, **kwargs)->Dict[str,any]:
         json_data = request.get_json()
@@ -39,17 +38,27 @@ class GenericApiView(ABC):
             serialized_data = self.serializer.load(json_data)
         except ValidationError as e:
             return e.messages, 422
-        model: BaseModel = self.model()
-        res = model.save(self.model, **serialized_data)
-        return self.serializer.dump(res)
+        model: BaseModel = self.model(**serialized_data)
+        model.save()
+        return self.serializer.dump(model)
 
     def updateEntity(self, *args, **kwargs)->Dict[str,any]:
         json_data = request.get_json()
-        breakpoint()
-        self.serializer.load(json_data)
-        model: BaseModel = self.model()
-        res = model.update(self.model, self.field_lookup, kwargs[self.field_lookup], **json_data)
-        return self.serializer.dump(res)
+        try:
+            serialized_data = self.serializer.load(json_data)
+        except ValidationError as e:
+            return e.messages, 422
 
-    def deleteEntity(self, deleteMethod='soft', *args, **kwargs)->Dict[str,any]:
-        pass
+        model: BaseModel = self.model().get_one(getattr(self.model, self.field_lookup) == kwargs[self.field_lookup])
+        model.__dict__.update(serialized_data)
+        model = model.update()
+        return self.serializer.dump(model)
+
+    def deleteEntity(self, deleteMethod: Literal['soft','hard'], *args, **kwargs)->Dict[str,any]:
+        model: BaseModel = self.model().get_one(getattr(self.model, self.field_lookup) == kwargs[self.field_lookup])
+        if deleteMethod == 'hard':
+            return model.delete(deleteMethod) 
+        model.deleted = 1
+        model.update()
+        return '', 204
+        
