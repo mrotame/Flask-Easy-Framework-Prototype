@@ -1,12 +1,10 @@
-import typing as t
-from typing import List, Literal
-from ..database.base import base
+from typing import List
+from easy_framework.database import base
+from easy_framework.database import Database
 from sqlalchemy import Column, DateTime, Integer, SmallInteger
-from src.database.database import Database
-from sqlalchemy.sql import func
 from datetime import datetime
 from flask import current_app
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.orm import Session
 
 class BaseModel(base):
     __abstract__ = True
@@ -56,6 +54,7 @@ class BaseModel(base):
     '''
     # if needed, model can be self updated by merging after making the changes
     # like the example below:
+
     def selfChangeData(self, *args, **kwargs):
         with self.getdbSession() as dbSession: # Start the session within scope
             self.login = 'updatedFromBaseModel' # Change the data as you want

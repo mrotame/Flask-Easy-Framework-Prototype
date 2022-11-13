@@ -2,13 +2,14 @@ import dotenv
 dotenv.load_dotenv(dotenv.find_dotenv())
 
 import os
-from src.database.database import Database
+from easy_framework.database.database import Database
 from flask import Flask
 from flask.views import View
 from src.views.viewList import ViewList
 from loguru import logger
 from flask_cors import CORS
 import flask_jwt_extended as jwt_extended
+from easy_framework import EasyFramework
 
 class App():
     app: Flask = Flask(__name__)
@@ -17,6 +18,7 @@ class App():
     def __init__(self, test:bool=False, registerViews:bool=True,)->None:
         logger.info("Iniciando API GeraFila...")
         jwt_extended.JWTManager(self.app)
+        EasyFramework(self.app)
         CORS(self.app)
 
         self.app.config['database'] = Database()
@@ -25,7 +27,6 @@ class App():
         self.app.config['JWT_SECRET_KEY'] = os.environ.get('jwt_secret_key','')
         self.app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
         
-
         if registerViews is True:
             self.registerViews()
 

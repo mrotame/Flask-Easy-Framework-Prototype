@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from src.models.baseModel import BaseModel
+from easy_framework.model.baseModel import BaseModel
 from marshmallow import Schema, fields
 
 class BaseSerializer(Schema):
