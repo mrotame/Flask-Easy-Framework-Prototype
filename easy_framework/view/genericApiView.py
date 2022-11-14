@@ -1,10 +1,12 @@
 import typing as t
-from typing import Dict, List, Literal
-from flask import request
 from abc import ABC, abstractmethod
-from easy_framework.serializer.baseSerializer import BaseSerializer
-from easy_framework.model.baseModel import BaseModel
+from typing import Dict, List, Literal
+
+from flask import request
 from marshmallow import ValidationError
+
+from easy_framework.model.baseModel import BaseModel
+from easy_framework.serializer.baseSerializer import BaseSerializer
 
 
 class GenericApiView(ABC):

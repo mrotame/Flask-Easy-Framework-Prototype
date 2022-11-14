@@ -1,5 +1,7 @@
 import typing as t
+
 from . import BaseException
+
 
 class ValidationError(BaseException):
     def __init__(self, message:str|dict[str,any], status_code:int) -> None:
@@ -16,6 +18,7 @@ class AuthMissingError(BaseException):
 
     def dispatch_exception(self):
         return self.message, self.status_code
+        
 
 class ApiExceptions():
     exceptions: t.List[BaseException] = [

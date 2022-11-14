@@ -1,6 +1,9 @@
 from abc import abstractmethod
-from easy_framework.model.baseModel import BaseModel
+
 from marshmallow import Schema, fields
+
+from easy_framework.model.baseModel import BaseModel
+
 
 class BaseSerializer(Schema):
 

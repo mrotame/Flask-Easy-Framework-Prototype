@@ -1,15 +1,18 @@
 import dotenv
+
 dotenv.load_dotenv(dotenv.find_dotenv())
 
 import os
-from easy_framework.database.database import Database
+
+import flask_jwt_extended as jwt_extended
 from flask import Flask
 from flask.views import View
-from src.views.viewList import ViewList
-from loguru import logger
 from flask_cors import CORS
-import flask_jwt_extended as jwt_extended
+from loguru import logger
+
 from easy_framework import EasyFramework
+from src.views.viewList import ViewList
+
 
 class App():
     app: Flask = Flask(__name__)
@@ -18,14 +21,11 @@ class App():
     def __init__(self, test:bool=False, registerViews:bool=True,)->None:
         logger.info("Iniciando API GeraFila...")
         jwt_extended.JWTManager(self.app)
-        EasyFramework(self.app)
         CORS(self.app)
 
-        self.app.config['database'] = Database()
-        self.app.config['dbsession'] = self.app.config['database'].session_scoped
-        self.app.config['JSON_AS_ASCII'] = False
-        self.app.config['JWT_SECRET_KEY'] = os.environ.get('jwt_secret_key','')
-        self.app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
+        self.setConfigs()
+
+        EasyFramework(self.app)
         
         if registerViews is True:
             self.registerViews()
@@ -37,6 +37,14 @@ class App():
                 logger.debug(f"Rota encontrada: {route} cadastrado com sucesso")
                 self.app.add_url_rule(route, view_func=item.as_view(item.name+'/'+route))
             logger.debug(f"Rota cadastrado com sucesso")
+
+    def setConfigs(self):
+        self.app.config.update({
+            'JSON_AS_ASCII': False,
+            'JWT_SECRET_KEY': 'test_key',
+            'JWT_ACCESS_TOKEN_EXPIRES': False,
+            'EASY_FRAMEWORK_DB_CREATE_ALL':True
+        })
 
     def runApp(self)->None:
         logger.info("Ininiciando app do flask")

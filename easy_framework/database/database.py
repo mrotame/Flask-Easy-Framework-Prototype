@@ -1,77 +1,63 @@
-import os
-from sqlalchemy import create_engine
-from src.models import *
-from .base import base
-from sqlalchemy.orm import sessionmaker, declarative_base, scoped_session
+from flask import Flask
 from sqlalchemy.orm import Session
 
+from .dbConfig import DbConfig
+
+
+# Session factory to be used within scope
+class SessionFactory():
+    def __init__(self, cls: 'Database'):
+        self.cls = cls
+
+    def __enter__(self):
+        return self.cls.getNewSession()
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.cls.closeSession()
+
 class Database():
-    __dialect: str
-    __databaseName: str
-    __uri: str
-    __port: str
-    __username: str
-    __password: str
+    dbConfigClass = DbConfig
+    dbSession: Session = None
+    
+    def __init__(self, app:Flask)-> None:
+        self.app = app
+        self.dbConfig = self.getDbConfig()
 
-    echo: bool = False
-    base: declarative_base
-    engine: create_engine
-    session: Session
-    session_scoped: scoped_session
-
-    def __init__(self, create_all=False, pool_size=1, max_overflow = 2, pool_timeout=300, pool_recycle=300) -> None :
-        create_all = True if os.environ.get('database_create_all') == 'True' else create_all
-        self.__dialect = os.environ.get('database_dialect')
-        self.__uri = os.environ.get('database_uri')
-        self.__port = os.environ.get('database_port')
-        self.__databaseName = os.environ.get('database_name')
-        self.__username = os.environ.get('database_user')
-        self.__password = os.environ.get('database_pwd')
-
-        self.pool_size=pool_size
-        self.max_overflow = max_overflow  
-        self.pool_timeout = pool_timeout
-        self.pool_recycle = pool_recycle
-        
-        self.base = base
-
-        # Postgresql atring and engine
-
-        # string_url = f'{self.__dialect}://{self.__username}:{self.__password}@{self.__uri}:{self.__port}/{self.__databaseName}'
-        # self.engine = create_engine(
-        #     string_url, 
-        #     pool_size=pool_size,
-        #     max_overflow=max_overflow,
-        #     pool_recycle=pool_recycle,
-        #     pool_pre_ping=True,
-        #     pool_timeout=pool_timeout,
-        #     pool_use_lifo=True,
-        #     echo=self.echo,
-        #     connect_args={
-        #         "keepalives": 1,
-        #         "keepalives_idle": 30,
-        #         "keepalives_interval": 10,
-        #         "keepalives_count": 5,
-        #     }
-        # )
-
-        # sqlite string and engine
-        
-        string_url = f'{self.__dialect}:///app.db'
-        self.engine = create_engine(
-            string_url, 
-            pool_recycle=pool_recycle,
-            pool_pre_ping=True,
-            echo=self.echo,
+    def getDbConfig(self)->DbConfig:
+        return self.dbConfigClass(
+            create_all = self.app.config.get('EASY_FRAMEWORK_DB_CREATE_ALL'),
+            dialect = self.app.config.get('EASY_FRAMEWORK_DB_DIALECT'),
+            uri = self.app.config.get('EASY_FRAMEWORK_DB_URI'),
+            port = self.app.config.get('EASY_FRAMEWORK_DB_PORT'),
+            databaseName = self.app.config.get('EASY_FRAMEWORK_DB_DBNAME'),
+            username = self.app.config.get('EASY_FRAMEWORK_DB_USERNAME'),
+            password = self.app.config.get('EASY_FRAMEWORK_DB_PASSWORD')
         )
 
-        self.session = sessionmaker(bind=self.engine)
-        self.session_scoped = scoped_session(sessionmaker(bind=self.engine))
+    # session = getNewSession()
+    def getNewSession(self)-> Session:
+        return self.dbConfig.session_scoped()
 
-        if(create_all): self.create_all()
+    # with getScopedSession() as dbSession:
+    def getScopedSession(self)-> SessionFactory:
+        return SessionFactory(self)
 
-    def create_all(self) -> None:
-        self.base.metadata.create_all(self.engine)
+    # database.openSession()
+    # database.dbSession
+    def openSession(self)->None:
+        self.dbSession = self.getNewSession()
 
-    def delete_all(self)-> None:
-        self.base.metadata.drop_all(self.engine)
+    # close any opened session
+    def closeSession(self)-> None:
+        return self.dbConfig.session_scoped.remove()
+
+    # with database.setScopedSession():
+    # database.dbSession
+    def setScopedSession(self)->None:
+        class SessionFactory():
+            def __enter__(factorySelf):
+                self.openSession()
+
+            def __exit__(factorySelf, exception_type, exception_value, traceback):
+                self.closeSession()
+        return SessionFactory()
