@@ -30,11 +30,11 @@ class GenericApiView(ABC):
         self.field_lookup_value = request.args.get(self.field_lookup)
 
     def __init__(self):
-        self.serializer = self.serializer()
+        self.serializer = self.serializer(self.model)
         self.get_field_lookup_value()
 
     def get_serializer(self)->BaseSerializer:
-        return self.serializer
+        return self.serializer.Meta()
 
     def dispatch_request(self, *args: t.List, **kwargs: t.Dict):
         self.validations(*args, **kwargs)
@@ -61,7 +61,7 @@ class GenericApiView(ABC):
             return e.messages, 422
         model: BaseModel = self.model(**serialized_data)
         model.save()
-        return self.get_serializer().dump(model)
+        return self.get_serializer().dump(model), 201
 
     def updateEntity(self, **kwargs)->Dict[str,any]:
         json_data = request.get_json()
@@ -73,7 +73,7 @@ class GenericApiView(ABC):
         model: BaseModel = self.model().get_one(getattr(self.model, self.field_lookup) == self.field_lookup_value)
         model.__dict__.update(serialized_data)
         model.update()
-        return self.get_serializer().dump(model)
+        return self.get_serializer().dump(model), 204
 
     def deleteEntity(self, deleteMethod: Literal['soft','hard'], *args, **kwargs)->Dict[str,any]:
         model: BaseModel = self.model().get_one(getattr(self.model, self.field_lookup) == self.field_lookup_value)

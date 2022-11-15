@@ -6,6 +6,8 @@ from pytest import fixture
 
 from easy_framework import Database, EasyFramework
 from easy_framework.model import BaseModel
+from easy_framework.serializer import BaseSerializer
+from marshmallow import fields
 
 
 @fixture(scope="session")
@@ -28,9 +30,21 @@ def between_tests(database: Database):
     database.dbConfig.delete_all()
 
 
-    
 class ModelTest(BaseModel):
     __tablename__ = 'TestModel'
-    id = sa.Column(sa.Integer, primary_key=True)
+    username = sa.Column(sa.String)
+    password = sa.Column(sa.String)
     test_datetime = sa.Column(sa.DateTime, default=datetime.now())
     info = sa.Column(sa.String)
+
+class SerializerTest(BaseSerializer):
+    model = ModelTest
+    class Meta():
+        test_datetime = fields.DateTime()
+        info = fields.Str()
+
+    exclude_from_methods = {
+        'POST':'id',
+        'GET': 'password',
+        'PATCH':'id'
+    }

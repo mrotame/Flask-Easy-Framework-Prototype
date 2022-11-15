@@ -1,9 +1,9 @@
 from flask import request
 from flask.views import View as flaskView
 from easy_framework.view import GenericApiView
-from src.serializers.userSerializer import UserSerializer
+from ...serializers.userSerializer import UserSerializer
 from easy_framework.exception.apiExceptions import ValidationError, AuthMissingError
-from src.models.user import User
+from ...models.user import User
 
 class View(GenericApiView, flaskView):
     name = 'userView'

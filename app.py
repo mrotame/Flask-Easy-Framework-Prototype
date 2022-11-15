@@ -40,7 +40,6 @@ class App():
 
     def setConfigs(self):
         self.app.config.update({
-            'JSON_AS_ASCII': False,
             'JWT_SECRET_KEY': 'test_key',
             'JWT_ACCESS_TOKEN_EXPIRES': False,
             'EASY_FRAMEWORK_DB_CREATE_ALL':True

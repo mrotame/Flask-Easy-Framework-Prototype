@@ -1,13 +1,14 @@
-from marshmallow import Schema, fields, ValidationError
-from src.models.user import User
+from marshmallow import Schema, ValidationError, fields
+
 from easy_framework.serializer.baseSerializer import BaseSerializer
+from ..models.user import User
+
 
 class UserSerializer(BaseSerializer):
     class Meta():
-        model = User
-    model = User
-    login = fields.Str(required=True)
-    password = fields.Str(load_only=True, required=True)
+        login = fields.Str(required=True)
+        password = fields.Str(load_only=True, required=True)
+    
 
 
         
