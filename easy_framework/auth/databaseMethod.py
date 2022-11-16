@@ -19,10 +19,13 @@ class DatabaseMethod(BaseAuthMethod):
     def generateHashToken(self):
         return secrets.token_hex(128)
 
-    def validateToken(self):
+    def returnUserFromToken(self):
         if 'Authorization' in request.headers and 'Bearer' in request.headers.get('Authorization', ''):
-            session = AuthModel.get.one(
-                request.headers.get('Authorization', '').split()[1])
-            if session is not None:
-                return True
-        return False
+            token = request.headers.get('Authorization', 'non token').split()[1]
+            userModel = current_app.config.get('EASY_FRAMEWORK_USER_MODEL')
+            user = userModel.get.one(AuthModel.token==token, userModel.id == AuthModel.id)
+            # session = AuthModel.get.one(
+            #     request.headers.get('Authorization', '').split()[1])
+            if user is not None:
+                return user
+        return None

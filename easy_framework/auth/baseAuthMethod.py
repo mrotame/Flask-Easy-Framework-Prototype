@@ -21,7 +21,7 @@ class BaseAuthMethod(ABC):
         pass
 
     @abstractmethod
-    def validateToken(self):
+    def returnUserFromToken(self):
         pass
 
     def getUser(self):

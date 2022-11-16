@@ -44,4 +44,33 @@ class TestDatabaseMethod():
             tokenModel: AuthModel = AuthModel.get.one(AuthModel.token==token) 
             assert tokenModel is not None
             assert tokenModel.user_id == userModel.id
+
+    def test_check_an_existent_token(self, flaskApp: Flask, userModel:UserModel):
+        with flaskApp.test_request_context('/', json=self.authJson()):
+            userModel = userModel(
+                login='test', password='test')
+            userModel.save()
+            token = DatabaseMethod().generateToken()
+            with flaskApp.test_request_context('/',headers={'Authorization':f'Bearer {token}'}):
+                assert DatabaseMethod().returnUserFromToken() is not None
+
+    def test_check_an_nonexistent_token(self, flaskApp: Flask, userModel:UserModel):
+        with flaskApp.test_request_context('/', json=self.authJson()):
+            userModel = userModel(
+                login='test', password='test')
+            userModel.save()
+            token = DatabaseMethod().generateHashToken()
+            with flaskApp.test_request_context('/',headers={'Authorization':f'Bearer {token}'}):
+                assert DatabaseMethod().returnUserFromToken() is None
+
+    def test_get_user_from_existent_token(self, flaskApp: Flask, userModel:UserModel):
+        with flaskApp.test_request_context('/', json=self.authJson()):
+            userModel = userModel(
+                login='test', password='test')
+            userModel.save()
+            token = DatabaseMethod().generateToken()
+            with flaskApp.test_request_context('/',headers={'Authorization':f'Bearer {token}'}):
+                assert type(DatabaseMethod().returnUserFromToken()) is type(userModel)
+
+
             
