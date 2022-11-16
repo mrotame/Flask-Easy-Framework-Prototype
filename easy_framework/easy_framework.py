@@ -19,6 +19,7 @@ class EasyFramework():
         self.database_register()
         self.exceptions_register()
         self.authView_register()
+        self.userManager_register()
 
     def setDefaultConfig(self):
         self.app.config.setdefault('EASY_FRAMEWORK_DB_DIALECT','sqlite')
@@ -46,6 +47,9 @@ class EasyFramework():
        for exception in self.exceptionList: 
             print('Registrando Exception')
             self.app.register_error_handler(exception, exception.getExceptionFunction)
+
+    def userManager_register(self):
+        self.app.userManager = self.app.config['EASY_FRAMEWORK_USER_MANAGER'](self.app)
 
     def database_register(self):
         self.app.config['EASY_FRAMEWORK_DATABASE'] = Database(self.app)

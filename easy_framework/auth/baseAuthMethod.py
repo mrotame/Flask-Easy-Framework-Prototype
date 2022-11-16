@@ -10,7 +10,7 @@ class BaseAuthMethod(ABC):
         pass
 
     def getUserManager(self)-> UserManager:
-        return current_app.config.get('EASY_FRAMEWORK_USER_MANAGER')(request.get_json())
+        return current_app.userManager
 
     @abstractmethod
     def generateSession(self)->str:
@@ -26,4 +26,4 @@ class BaseAuthMethod(ABC):
 
     def getUser(self):
         userManager = self.getUserManager()
-        return userManager.getUserFromDb()
+        return userManager.getUser(request.get_json())

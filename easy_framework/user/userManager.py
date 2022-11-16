@@ -1,11 +1,13 @@
-from flask import current_app
+from flask import Flask
 from .userModel import UserModel
 
 class UserManager():
-    def __init__(self, credentials_needed_values):
-        self.user_model: UserModel = current_app.config.get('EASY_FRAMEWORK_USER_MODEL')
-        self.user_credentials_needed = ['login', 'password']
-        self.credentials_needed_values = credentials_needed_values
+    def __init__(self, app: Flask):
+        self.user_model: UserModel = app.config.get('EASY_FRAMEWORK_USER_MODEL')
 
-    def getUserFromDb(self)-> UserModel:
-        return self.user_model.get.one(*[getattr(self.user_model, item)== self.credentials_needed_values[item] for item in self.user_credentials_needed])
+    @property
+    def user_credentials_needed(self):
+        return ['login', 'password']
+
+    def getUser(self, credentials_needed_values)-> UserModel:
+        return self.user_model.get.one(*[getattr(self.user_model, item)== credentials_needed_values[item] for item in self.user_credentials_needed])
