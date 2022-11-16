@@ -3,14 +3,23 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Literal
 
 from flask import request
-from marshmallow import ValidationError
+from flask.views import View as FlaskView
+from marshmallow import ValidationError as MarshmallowValidationError
 
 from easy_framework.model.baseModel import BaseModel
 from easy_framework.serializer.baseSerializer import BaseSerializer
+from easy_framework.exception.apiExceptions import ValidationError
 
 
-class GenericApiView(ABC):
+class GenericApiViewMeta(type(ABC), type(FlaskView)):
+    pass
+
+
+class GenericApiView(ABC, FlaskView, metaclass=GenericApiViewMeta):
     field_lookup_value: any
+    @property
+    @abstractmethod
+    def methods(self) -> List[str]: pass
 
     @property
     @abstractmethod
@@ -19,21 +28,21 @@ class GenericApiView(ABC):
 
     @property
     @abstractmethod
-    def model(self, model:BaseModel)-> BaseModel: 
+    def model(self, model: BaseModel) -> BaseModel:
         return model
 
     @property
     @abstractmethod
-    def field_lookup(self) -> str:pass
+    def field_lookup(self) -> str: pass
 
-    def get_field_lookup_value(self)->any:
+    def get_field_lookup_value(self) -> any:
         self.field_lookup_value = request.args.get(self.field_lookup)
 
     def __init__(self):
         self.serializer = self.serializer(self.model)
         self.get_field_lookup_value()
 
-    def get_serializer(self)->BaseSerializer:
+    def get_serializer(self) -> BaseSerializer:
         return self.serializer.Meta()
 
     def dispatch_request(self, *args: t.List, **kwargs: t.Dict):
@@ -43,43 +52,51 @@ class GenericApiView(ABC):
     def validations(self, *args, **kwargs):
         pass
 
-    def getSingleEntity(self)->Dict[str,any]:
+    def getSingleEntity(self) -> Dict[str, any]:
         model: BaseModel = self.model()
-        model = model.get_one(getattr(self.model, self.field_lookup) == self.field_lookup_value)
+        model = model.get_one(
+            getattr(self.model, self.field_lookup) == self.field_lookup_value)
         return self.get_serializer().dump(model)
 
-    def getAllEntities(self)->List[Dict[str,any]]:
+    def getAllEntities(self) -> List[Dict[str, any]]:
         model: BaseModel = self.model()
         res = model.get_many()
         return self.get_serializer().dump(res, many=True)
 
-    def createEntity(self)->Dict[str,any]:
+    def createEntity(self) -> Dict[str, any]:
         json_data = request.get_json()
         try:
             serialized_data = self.get_serializer().load(json_data)
-        except ValidationError as e:
+        except MarshmallowValidationError as e:
             return e.messages, 422
         model: BaseModel = self.model(**serialized_data)
         model.save()
         return self.get_serializer().dump(model), 201
 
-    def updateEntity(self, **kwargs)->Dict[str,any]:
+    def updateEntity(self, **kwargs) -> Dict[str, any]:
         json_data = request.get_json()
         try:
             serialized_data = self.get_serializer().load(json_data)
-        except ValidationError as e:
+        except MarshmallowValidationError as e:
             return e.messages, 422
 
-        model: BaseModel = self.model().get_one(getattr(self.model, self.field_lookup) == self.field_lookup_value)
+        model: BaseModel = self.model().get_one(
+            getattr(self.model, self.field_lookup) == self.field_lookup_value)
         model.__dict__.update(serialized_data)
         model.update()
         return self.get_serializer().dump(model), 204
 
-    def deleteEntity(self, deleteMethod: Literal['soft','hard'], *args, **kwargs)->Dict[str,any]:
-        model: BaseModel = self.model().get_one(getattr(self.model, self.field_lookup) == self.field_lookup_value)
+    def deleteEntity(self, deleteMethod: Literal['soft', 'hard'], *args, **kwargs) -> Dict[str, any]:
+        model: BaseModel = self.model().get_one(
+            getattr(self.model, self.field_lookup) == self.field_lookup_value)
         if deleteMethod == 'hard':
-            return model.delete(deleteMethod) 
+            return model.delete(deleteMethod)
         model.deleted = 1
         model.update()
         return '', 204
-        
+
+    def validateRequest(self):
+        try:
+            return self.get_serializer().load(request.get_json())
+        except MarshmallowValidationError as e:
+            raise ValidationError(e.messages, 422)

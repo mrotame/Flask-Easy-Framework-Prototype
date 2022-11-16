@@ -20,7 +20,7 @@ def flaskApp():
 
 @fixture(scope='session')
 def database(flaskApp: Flask)-> Database:
-    return flaskApp.config['database']
+    return flaskApp.config['EASY_FRAMEWORK_DATABASE']
 
 @fixture(autouse=True)
 def between_tests(database: Database):

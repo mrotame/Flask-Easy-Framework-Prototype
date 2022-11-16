@@ -12,6 +12,7 @@ from loguru import logger
 
 from easy_framework import EasyFramework
 from src.views.viewList import ViewList
+from src.models.user import User
 
 
 class App():
@@ -42,7 +43,8 @@ class App():
         self.app.config.update({
             'JWT_SECRET_KEY': 'test_key',
             'JWT_ACCESS_TOKEN_EXPIRES': False,
-            'EASY_FRAMEWORK_DB_CREATE_ALL':True
+            'EASY_FRAMEWORK_DB_CREATE_ALL':True,
+            'EASY_FRAMEWORK_USER_MODEL': User
         })
 
     def runApp(self)->None:

@@ -18,7 +18,14 @@ class AuthMissingError(BaseException):
 
     def dispatch_exception(self):
         return self.message, self.status_code
-        
+
+class InvalidCredentials(BaseException):
+    status_code = 404
+    def __init__(self, message:str|dict[str,any]) -> None:
+        self.message = message
+
+    def dispatch_exception(self):
+        return self.message, self.status_code
 
 class ApiExceptions():
     exceptions: t.List[BaseException] = [

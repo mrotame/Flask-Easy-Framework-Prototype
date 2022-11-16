@@ -32,7 +32,9 @@ class BaseModel(base):
     
     def get_one(self, *args, **kwargs)-> 'BaseModel':
         with self.db.getScopedSession() as dbSession:
-            return self.get_one_base_query(dbSession, self.__class__).filter(*args, **kwargs).first()
+            if kwargs is None:
+                return self.get_one_base_query(dbSession, self.__class__).filter(*args, **kwargs).first()
+            return self.get_one_base_query(dbSession, self.__class__).filter_by(**kwargs).first()
 
     def get_many(self, *args, **kwargs)-> List['BaseModel']:
         with self.db.getScopedSession() as dbSession:
