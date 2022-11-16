@@ -26,13 +26,13 @@ class TestDatabaseMethod():
     def test_request_a_new_token_with_no_user_registered_and_get_404(self, flaskApp: Flask):
         with flaskApp.test_request_context('/', json=self.authJson()):
             with pytest.raises(InvalidCredentials) as exc_info:
-                DatabaseMethod().generateToken()
+                DatabaseMethod().generateSession()
                 assert type(exc_info.value) is InvalidCredentials
 
     def test_request_a_new_token_and_get_token(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
             userModel(login='test', password='test').save()
-            assert (t := DatabaseMethod().generateToken()
+            assert (t := DatabaseMethod().generateSession()
                     ) is not None and type(t) is str
 
     def test_request_a_new_token_and_check_token_in_database(self, flaskApp: Flask, userModel:UserModel):
@@ -40,7 +40,7 @@ class TestDatabaseMethod():
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
-            token = DatabaseMethod().generateToken()
+            token = DatabaseMethod().generateSession()
             tokenModel: AuthModel = AuthModel.get.one(AuthModel.token==token) 
             assert tokenModel is not None
             assert tokenModel.user_id == userModel.id
@@ -50,7 +50,7 @@ class TestDatabaseMethod():
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
-            token = DatabaseMethod().generateToken()
+            token = DatabaseMethod().generateSession()
             with flaskApp.test_request_context('/',headers={'Authorization':f'Bearer {token}'}):
                 assert DatabaseMethod().returnUserFromToken() is not None
 
@@ -68,7 +68,7 @@ class TestDatabaseMethod():
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
-            token = DatabaseMethod().generateToken()
+            token = DatabaseMethod().generateSession()
             with flaskApp.test_request_context('/',headers={'Authorization':f'Bearer {token}'}):
                 assert type(DatabaseMethod().returnUserFromToken()) is type(userModel)
 

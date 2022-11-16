@@ -7,7 +7,7 @@ from .authModel import AuthModel
 from ..exception.apiExceptions import InvalidCredentials
 
 class DatabaseMethod(BaseAuthMethod):
-    def generateToken(self):
+    def generateSession(self):
         token = self.generateHashToken()
         user = self.getUser()
         if user is None:
