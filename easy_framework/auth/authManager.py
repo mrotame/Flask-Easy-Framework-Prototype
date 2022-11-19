@@ -1,14 +1,15 @@
 from flask import current_app
 from .databaseMethod import DatabaseMethod
+from .baseAuthMethod import BaseAuthMethod
 
 class AuthManager():
     def __init__(self):
         self.string_method = current_app.config.get('EASY_FRAMEWORK_AUTH_TYPE')
 
     @property
-    def auth_method(self):
+    def auth_method(self)-> BaseAuthMethod:
         try:
-            return getattr(self, 'auth_method_'+self.string_method)
+            return getattr(self, 'auth_method_'+self.string_method)()
         except AttributeError:
             raise AttributeError('auth method not found. Try: "database" or "jwt". If you are creating one, the auth method function must my called: "auth_method_myMethod"')
 
@@ -17,4 +18,7 @@ class AuthManager():
 
     def auth_method_jwt(self):
         pass
+
+    def loadUser(self):
+        self.auth_method.loadUser()
     

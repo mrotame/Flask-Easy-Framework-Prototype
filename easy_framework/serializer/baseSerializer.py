@@ -5,6 +5,7 @@ from marshmallow import Schema, fields
 
 from easy_framework.model.baseModel import BaseModel
 
+
 class BaseSerializer(ABC):
 
     exclude_from_methods = {}
@@ -23,11 +24,12 @@ class BaseSerializer(ABC):
 
     def __init__(self, model, *args, **kwargs):
         self.model = model
-        self.Meta = type(str(self.__class__).split("'")[1], (self.MainMeta, self.Meta), {})
+        self.Meta = type(str(self.__class__).split(
+            "'")[1], (self.MainMeta, self.Meta), {})
         self.Meta = self.set_exclude_from_methods(self.Meta)
 
     def set_exclude_from_methods(self, meta):
-        for item in self.exclude_from_methods.get(request.method.lower(),{}):
+        for item in self.exclude_from_methods.get(request.method.lower(), {}):
             setattr(meta, item, None)
         return meta
 

@@ -6,9 +6,9 @@ from flask import request
 from flask.views import View as FlaskView
 from marshmallow import ValidationError as MarshmallowValidationError
 
+from easy_framework.exception.apiExceptions import ValidationError
 from easy_framework.model.baseModel import BaseModel
 from easy_framework.serializer.baseSerializer import BaseSerializer
-from easy_framework.exception.apiExceptions import ValidationError
 
 
 class GenericApiViewMeta(type(ABC), type(FlaskView)):

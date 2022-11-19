@@ -1,11 +1,12 @@
 import pytest
-from flask import Flask
+from flask import Flask, g
 from pytest import fixture
 
+from easy_framework.auth.authModel import AuthModel
 from easy_framework.auth.databaseMethod import DatabaseMethod
 from easy_framework.exception.apiExceptions import InvalidCredentials
 from easy_framework.user.userModel import UserModel
-from easy_framework.auth.authModel import AuthModel
+from easy_framework.user.userMixin import AnonymousUser, UserMixin
 
 
 class TestDatabaseMethod():
@@ -35,42 +36,42 @@ class TestDatabaseMethod():
             assert (t := DatabaseMethod().generateSession()
                     ) is not None and type(t) is str
 
-    def test_request_a_new_token_and_check_token_in_database(self, flaskApp: Flask, userModel:UserModel):
+    def test_request_a_new_token_and_check_token_in_database(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
             token = DatabaseMethod().generateSession()
-            tokenModel: AuthModel = AuthModel.get.one(AuthModel.token==token) 
+            tokenModel: AuthModel = AuthModel.get.one(AuthModel.token == token)
             assert tokenModel is not None
             assert tokenModel.user_id == userModel.id
 
-    def test_check_an_existent_token(self, flaskApp: Flask, userModel:UserModel):
+    def test_check_an_existent_token(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
             token = DatabaseMethod().generateSession()
-            with flaskApp.test_request_context('/',headers={'Authorization':f'Bearer {token}'}):
-                assert DatabaseMethod().returnUserFromToken() is not None
+            with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
+                DatabaseMethod().loadUser()
+                assert g.user is not None
 
-    def test_check_an_nonexistent_token(self, flaskApp: Flask, userModel:UserModel):
+    def test_check_an_nonexistent_token(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
             token = DatabaseMethod().generateHashToken()
-            with flaskApp.test_request_context('/',headers={'Authorization':f'Bearer {token}'}):
-                assert DatabaseMethod().returnUserFromToken() is None
+        with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
+            DatabaseMethod().loadUser()
+            assert isinstance(g.user, AnonymousUser)
 
-    def test_get_user_from_existent_token(self, flaskApp: Flask, userModel:UserModel):
+    def test_get_user_from_existent_token(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
             token = DatabaseMethod().generateSession()
-            with flaskApp.test_request_context('/',headers={'Authorization':f'Bearer {token}'}):
-                assert type(DatabaseMethod().returnUserFromToken()) is type(userModel)
-
-
-            
+        with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
+            DatabaseMethod().loadUser()
+            assert isinstance(g.user, UserMixin)

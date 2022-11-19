@@ -22,6 +22,7 @@ class EasyFramework():
         self.userManager_register()
 
     def setDefaultConfig(self):
+        # -- DATABASE CONFIG --
         self.app.config.setdefault('EASY_FRAMEWORK_DB_DIALECT','sqlite')
         self.app.config.setdefault('EASY_FRAMEWORK_DB_URI','/')
         self.app.config.setdefault('EASY_FRAMEWORK_DB_PORT','')
@@ -29,11 +30,13 @@ class EasyFramework():
         self.app.config.setdefault('EASY_FRAMEWORK_DB_USERNAME','')
         self.app.config.setdefault('EASY_FRAMEWORK_DB_PASSWORD','')
         self.app.config.setdefault('EASY_FRAMEWORK_DB_CREATE_ALL', False)
-        self.app.config.setdefault('EASY_FRAMEWORK_AUTH_VIEW_AUTO_REGISTER', True)
+        # -- AUTH MODULE CONFIG --
         self.app.config.setdefault('EASY_FRAMEWORK_AUTH_VIEW', AuthView)
-        self.app.config.setdefault('EASY_FRAMEWORK_AUTH_MODULE', AuthManager)
+        self.app.config.setdefault('EASY_FRAMEWORK_AUTH_MANAGER', AuthManager)
+        self.app.config.setdefault('EASY_FRAMEWORK_AUTH_VIEW_AUTO_REGISTER', True)
         self.app.config.setdefault('EASY_FRAMEWORK_AUTH_TYPE', 'database')
         self.app.config.setdefault('EASY_FRAMEWORK_AUTH_TOKEN_EXPIRATION', timedelta(days=1))
+        # -- USER CONFIG --
         self.app.config.setdefault('EASY_FRAMEWORK_USER_MODEL', UserModel)
         self.app.config.setdefault('EASY_FRAMEWORK_USER_MANAGER', UserManager)
 
