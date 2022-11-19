@@ -39,11 +39,11 @@ class GenericApiView(ABC, FlaskView, metaclass=GenericApiViewMeta):
         self.field_lookup_value = request.args.get(self.field_lookup)
 
     def __init__(self):
-        self.serializer = self.serializer(self.model)
+        self.serializer = self.serializer()
         self.get_field_lookup_value()
 
     def get_serializer(self) -> BaseSerializer:
-        return self.serializer.Meta()
+        return self.serializer
 
     def dispatch_request(self, *args: t.List, **kwargs: t.Dict):
         self.validations(*args, **kwargs)

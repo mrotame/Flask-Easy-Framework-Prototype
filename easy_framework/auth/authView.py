@@ -20,5 +20,5 @@ class AuthView(GenericApiView):
         serialized_data = self.validateRequest()
         userModel: UserModel = current_app.config.get('EASY_FRAMEWORK_USER_MODEL')
         userModel = userModel.get.one(**serialized_data)
-        token = AuthManager().auth_method().generateSession()
+        token = AuthManager().auth_method.generateSession()
         return {'auth_token': token}, 200

@@ -11,7 +11,7 @@ class AuthManager():
         try:
             return getattr(self, 'auth_method_'+self.string_method)()
         except AttributeError:
-            raise AttributeError('auth method not found. Try: "database" or "jwt". If you are creating one, the auth method function must my called: "auth_method_myMethod"')
+            raise AttributeError('auth method not found. Try: "database" or "jwt"(not implementes yet). If you are creating one, the auth method function must my called: "auth_method_myMethod"')
 
     def auth_method_database(self):
         return DatabaseMethod()
