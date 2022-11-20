@@ -4,7 +4,7 @@ from pytest import fixture
 
 from easy_framework.auth.authModel import AuthModel
 from easy_framework.auth.databaseMethod import DatabaseMethod
-from easy_framework.exception.apiExceptions import InvalidCredentials
+from easy_framework.exceptions.apiExceptions import InvalidCredentials
 from easy_framework.user.userModel import UserModel
 from easy_framework.user.userMixin import AnonymousUser, UserMixin
 

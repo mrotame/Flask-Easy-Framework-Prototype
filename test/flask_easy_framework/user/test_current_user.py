@@ -1,11 +1,9 @@
-from flask import Flask
+from flask import Flask, current_app
 from pytest import fixture
 
 from easy_framework.auth import AuthManager
-from easy_framework.user import current_user
-from easy_framework.user import UserModel
-from easy_framework.user import UserMixin
-from easy_framework.user import AnonymousUser
+from easy_framework.user import (AnonymousUser, UserMixin, UserModel,
+                                 current_user)
 
 
 class TestCurrent_user():
@@ -24,7 +22,7 @@ class TestCurrent_user():
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
-            token = AuthManager().auth_method.generateSession()
+            token = current_app.authManager.auth_method.generateSession()
         with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
             assert isinstance(current_user, UserMixin)
 
@@ -33,6 +31,6 @@ class TestCurrent_user():
             userModel = userModel(
                 login='test', password='test')
             userModel.save()
-            token = AuthManager().auth_method.generateHashToken()
+            token = current_app.authManager.auth_method.generateHashToken()
         with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
             assert isinstance(current_user, AnonymousUser)

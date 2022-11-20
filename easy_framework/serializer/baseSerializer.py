@@ -26,10 +26,6 @@ class BaseSerializer(ABC):
         cls.Meta = cls.set_exclude_from_methods(cls, cls.Meta)
         return cls.Meta()
 
-    # def __init__(self, *args, **kwargs):
-    #     self.Meta = self.selectMeta()
-    #     self.Meta = self.set_exclude_from_methods(self.Meta)
-
     def set_exclude_from_methods(self, meta):
         for item in self.exclude_from_methods.get(request.method.lower(), {}):
             setattr(meta, item, None)

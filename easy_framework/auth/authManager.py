@@ -1,10 +1,11 @@
-from flask import current_app
+from flask import Flask
 from .databaseMethod import DatabaseMethod
 from .baseAuthMethod import BaseAuthMethod
 
 class AuthManager():
-    def __init__(self):
-        self.string_method = current_app.config.get('EASY_FRAMEWORK_AUTH_TYPE')
+    def __init__(self, app: Flask):
+        self.app = app
+        self.string_method = self.app.config.get('EASY_FRAMEWORK_AUTH_TYPE')
 
     @property
     def auth_method(self)-> BaseAuthMethod:

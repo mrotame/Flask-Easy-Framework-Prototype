@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 def __get_user()->UserModel:
     if has_request_context:
         if 'user' not in g:
-            authManager: AuthManager = current_app.config.get(
-                'EASY_FRAMEWORK_AUTH_MANAGER')
-            authManager().loadUser()
+            authManager: AuthManager = current_app.authManager
+            authManager.loadUser()
         return g.user
