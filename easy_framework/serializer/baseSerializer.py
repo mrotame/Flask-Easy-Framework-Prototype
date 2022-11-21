@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-
+import types
 from flask import request
 from marshmallow import Schema, fields
 
 from easy_framework.model.baseModel import BaseModel
 
 
-class BaseSerializer(ABC):
+class BaseSerializer(Schema):
     exclude_from_methods = {}
 
     @abstractmethod
@@ -15,31 +15,34 @@ class BaseSerializer(ABC):
             pass
         return Meta
 
-    class MainMeta(Schema, Meta()):
+    class MainMeta():
         id = fields.Integer(dump_only=True)
         created_at = fields.DateTime(dump_only=True)
         updated_at = fields.DateTime(dump_only=True)
         deleted = fields.Integer(dump_only=True)
 
-    def __new__(cls):
-        cls.Meta = cls.selectMeta(cls)
-        cls.Meta = cls.set_exclude_from_methods(cls, cls.Meta)
-        return cls.Meta()
+    def __new__(cls, *args, **kwargs):
+        # cls.__new__ = super().__new__
+        # if isinstance(cls(), cls.MainMeta):
+        #     return super().__new__(cls, *args, **kwargs)
+        cls.skipNew = True
+        cls = cls.selectMeta(cls)
+        # cls = cls.set_exclude_from_methods(cls, cls)
+        return super().__new__(cls, *args, **kwargs)
+        # return cls()
 
-    def set_exclude_from_methods(self, meta):
-        for item in self.exclude_from_methods.get(request.method.lower(), {}):
+    def set_exclude_from_methods(cls, meta):
+        for item in cls.exclude_from_methods.get(request.method.lower(), {}):
             setattr(meta, item, None)
         return meta
 
-    def selectMeta(self):
+    def selectMeta(cls):
         look_for = request.method.capitalize()+'Meta'
         try:
-            requestedMeta = getattr(self,look_for)
-            return type(str(self.__class__).split(
-            "'")[1], (self.MainMeta, requestedMeta), {})
+            requestedMeta = getattr(cls,look_for)
+            return types.new_class(str(cls.__name__), (cls, cls.MainMeta, requestedMeta), {})
         except AttributeError:
-            return type(str(self.__class__).split(
-            "'")[1], (self.MainMeta, self.Meta), {})
+            return types.new_class(str(cls.__name__), (cls, cls.MainMeta, cls.Meta), {})
 
     def getModel(self) -> BaseModel:
         return self.model

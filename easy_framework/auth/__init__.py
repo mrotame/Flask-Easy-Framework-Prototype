@@ -4,3 +4,4 @@ from .authSerializer import AuthSerializer
 from .authView import AuthView
 from .baseAuthMethod import BaseAuthMethod
 from .databaseMethod import DatabaseMethod
+from .password import PasswordManager

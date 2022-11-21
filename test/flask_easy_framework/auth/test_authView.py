@@ -21,8 +21,7 @@ class TestAuthView():
 
     def test_request_login_and_get_token(self, flaskApp: Flask):
         with flaskApp.app_context():
-            user = self.getUserModel(flaskApp)(login='test', password='test')
-            user.save()
+            user = self.getUserModel(flaskApp)(login='test', password='test').save()
             res = flaskApp.test_client().post(self.url(),json=self.authJson())
             assert res.status_code == 200
             assert 'auth_token' in res.get_json()

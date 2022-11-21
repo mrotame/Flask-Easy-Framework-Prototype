@@ -27,40 +27,40 @@ class TestDatabaseMethod():
     def test_request_a_new_token_with_no_user_registered_and_get_404(self, flaskApp: Flask):
         with flaskApp.test_request_context('/', json=self.authJson()):
             with pytest.raises(InvalidCredentials) as exc_info:
-                DatabaseMethod().generateSession()
+                DatabaseMethod().generateSession(None)
                 assert type(exc_info.value) is InvalidCredentials
 
     def test_request_a_new_token_and_get_token(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
-            userModel(login='test', password='test').save()
-            assert (t := DatabaseMethod().generateSession()
+            user = userModel(login='test', password='test').save()
+            assert (t := DatabaseMethod().generateSession(user)
                     ) is not None and type(t) is str
 
     def test_request_a_new_token_and_check_token_in_database(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
-            userModel = userModel(
+            user = userModel(
                 login='test', password='test')
-            userModel.save()
-            token = DatabaseMethod().generateSession()
+            user.save()
+            token = DatabaseMethod().generateSession(user)
             tokenModel: AuthModel = AuthModel.get.one(AuthModel.token == token)
             assert tokenModel is not None
-            assert tokenModel.user_id == userModel.id
+            assert tokenModel.user_id == user.id
 
     def test_check_an_existent_token(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
-            userModel = userModel(
+            user = userModel(
                 login='test', password='test')
-            userModel.save()
-            token = DatabaseMethod().generateSession()
+            user.save()
+            token = DatabaseMethod().generateSession(user)
             with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
                 DatabaseMethod().loadUser()
                 assert g.user is not None
 
     def test_check_an_nonexistent_token(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
-            userModel = userModel(
+            user = userModel(
                 login='test', password='test')
-            userModel.save()
+            user.save()
             token = DatabaseMethod().generateHashToken()
         with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
             DatabaseMethod().loadUser()
@@ -68,10 +68,10 @@ class TestDatabaseMethod():
 
     def test_get_user_from_existent_token(self, flaskApp: Flask, userModel: UserModel):
         with flaskApp.test_request_context('/', json=self.authJson()):
-            userModel = userModel(
+            user = userModel(
                 login='test', password='test')
-            userModel.save()
-            token = DatabaseMethod().generateSession()
+            user.save()
+            token = DatabaseMethod().generateSession(user)
         with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
             DatabaseMethod().loadUser()
             assert isinstance(g.user, UserMixin)

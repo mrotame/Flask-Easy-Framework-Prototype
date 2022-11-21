@@ -47,10 +47,6 @@ class BaseAuthMethod(ABC):
     def loadUser(self) -> None:
         self.getUserManager().load_user(self.getUserFromToken())
 
-    def getUser(self):
-        userManager = self.getUserManager()
-        return userManager.getUser(request.get_json())
-
     def getTokenFromRequest(self) -> str:
         try:
             return request.headers.get('Authorization', '').split()[1]

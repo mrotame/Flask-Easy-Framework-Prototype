@@ -9,6 +9,7 @@ from .database import Database
 from .exceptions.apiExceptions import ApiExceptions
 from .user.userManager import UserManager
 from .user.userModel import UserModel
+from .auth import PasswordManager
 
 
 class EasyFramework():
@@ -23,6 +24,7 @@ class EasyFramework():
         self.authView_register()
         self.userManager_register()
         self.authManager_register()
+        self.passwordManager_register()
 
     def setDefaultConfig(self):
         # -- DATABASE CONFIG --
@@ -41,6 +43,7 @@ class EasyFramework():
         self.app.config.setdefault('EASY_FRAMEWORK_AUTH_TYPE', 'database')
         self.app.config.setdefault(
             'EASY_FRAMEWORK_AUTH_TOKEN_EXPIRATION', timedelta(days=1))
+        self.app.config.setdefault('EASY_FRAMEWORK_AUTH_PASSWORD_MANAGER', PasswordManager)
         # -- USER CONFIG --
         self.app.config.setdefault('EASY_FRAMEWORK_USER_MODEL', UserModel)
         self.app.config.setdefault('EASY_FRAMEWORK_USER_MANAGER', UserManager)
@@ -65,6 +68,9 @@ class EasyFramework():
     def authManager_register(self):
         self.app.authManager = self.app.config['EASY_FRAMEWORK_AUTH_MANAGER'](
             self.app)
+
+    def passwordManager_register(self):
+        self.app.passwordManager = self.app.config['EASY_FRAMEWORK_AUTH_PASSWORD_MANAGER']()
 
     def database_register(self):
         self.app.config['EASY_FRAMEWORK_DATABASE'] = Database(self.app)

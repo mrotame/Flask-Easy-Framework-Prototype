@@ -17,9 +17,9 @@ class TestLogin_Required():
 
     def test_make_request_with_hedder_auth_and_get_no_errors(self, flaskApp: Flask):
         with flaskApp.test_request_context('/', json={'login': 'test', 'password': 'test123'}):
-            UserModel(login='test', password='test123').save()
+            user = UserModel(login='test', password='test123').save()
             authmethod: BaseAuthMethod = flaskApp.authManager.auth_method
-            token = authmethod.generateSession()
+            token = authmethod.generateSession(user)
 
         with flaskApp.test_request_context('/', headers={'Authorization': f'Bearer {token}'}):
             assert self.getView().test_func() == 'testing_string'

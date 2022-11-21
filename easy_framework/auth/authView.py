@@ -1,11 +1,15 @@
 from flask import current_app, request
-
+import typing as t
 from easy_framework.view import GenericApiView
 
 from ..user.userModel import UserModel
 from .authManager import AuthManager
 from .authModel import AuthModel
 from .authSerializer import AuthSerializer
+from ..exceptions import InvalidCredentials
+
+if t.TYPE_CHECKING:
+    from ..auth import PasswordManager
 
 
 class AuthView(GenericApiView):
@@ -19,6 +23,12 @@ class AuthView(GenericApiView):
     def post(self):
         serialized_data = self.validateRequest()
         userModel: UserModel = current_app.config.get('EASY_FRAMEWORK_USER_MODEL')
-        userModel = userModel.get.one(**serialized_data)
-        token = current_app.authManager.auth_method.generateSession()
+        
+        user: UserModel = userModel.get.one(**{'login': serialized_data['login']})
+        passwordManager: PasswordManager = current_app.passwordManager
+        
+        if user is None or passwordManager.compare(serialized_data['password'], user.password) is not True:
+            raise InvalidCredentials('Invalid login or password')
+
+        token = current_app.authManager.auth_method.generateSession(user)
         return {'auth_token': token}, 200

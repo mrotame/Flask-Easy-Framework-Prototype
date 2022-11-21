@@ -8,9 +8,8 @@ from ..exceptions import ValidationError, InvalidCredentials
 
 class DatabaseMethod(BaseAuthMethod):
     token_len = 256
-    def generateSession(self):
+    def generateSession(self, user):
         token = self.generateHashToken()
-        user = self.getUser()
         if user is None:
             raise InvalidCredentials('User not found or password is invalid')
         session = AuthModel(token=token, user_id=user.id)
