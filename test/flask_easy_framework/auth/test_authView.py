@@ -1,7 +1,7 @@
 from flask import Flask
 from easy_framework.auth import AuthView
 import pytest
-from easy_framework.exceptions.apiExceptions import InvalidCredentials
+from easy_framework.exception.apiExceptions import InvalidCredentials
 
 class TestAuthView():
     def url(self):

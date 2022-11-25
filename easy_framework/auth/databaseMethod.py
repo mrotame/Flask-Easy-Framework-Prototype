@@ -4,7 +4,7 @@ from flask import current_app, request
 
 from .baseAuthMethod import BaseAuthMethod
 from .authModel import AuthModel
-from ..exceptions import ValidationError, InvalidCredentials
+from ..exception import ValidationError, InvalidCredentials
 
 class DatabaseMethod(BaseAuthMethod):
     token_len = 256

@@ -1,9 +1,5 @@
-from typing import TYPE_CHECKING
 from easy_framework.serializer import BaseSerializer, fields
 from flask import current_app
-from marshmallow import post_load
-if TYPE_CHECKING:
-    from easy_framework.auth import PasswordManager
 
 
 class AuthSerializer(BaseSerializer):
@@ -17,4 +13,4 @@ class AuthSerializer(BaseSerializer):
 
     class PostMeta(Meta):
         login = fields.Str(required=True)
-        fields.Str(required=True, load_only=True)
+        password = fields.Str(required=True, load_only=True)

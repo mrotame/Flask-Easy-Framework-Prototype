@@ -22,14 +22,8 @@ class BaseSerializer(Schema):
         deleted = fields.Integer(dump_only=True)
 
     def __new__(cls, *args, **kwargs):
-        # cls.__new__ = super().__new__
-        # if isinstance(cls(), cls.MainMeta):
-        #     return super().__new__(cls, *args, **kwargs)
-        cls.skipNew = True
         cls = cls.selectMeta(cls)
-        # cls = cls.set_exclude_from_methods(cls, cls)
         return super().__new__(cls, *args, **kwargs)
-        # return cls()
 
     def set_exclude_from_methods(cls, meta):
         for item in cls.exclude_from_methods.get(request.method.lower(), {}):

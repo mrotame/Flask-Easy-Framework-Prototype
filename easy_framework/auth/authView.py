@@ -6,7 +6,7 @@ from ..user.userModel import UserModel
 from .authManager import AuthManager
 from .authModel import AuthModel
 from .authSerializer import AuthSerializer
-from ..exceptions import InvalidCredentials
+from ..exception import InvalidCredentials
 
 if t.TYPE_CHECKING:
     from ..auth import PasswordManager

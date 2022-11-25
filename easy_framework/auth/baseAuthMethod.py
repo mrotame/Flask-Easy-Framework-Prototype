@@ -4,7 +4,7 @@ from flask import current_app, request
 
 from ..user.userManager import UserManager
 from ..user.userModel import UserModel
-from ..exceptions import AuthMissingError
+from ..exception import AuthMissingError
 
 
 class BaseAuthMethod(ABC):

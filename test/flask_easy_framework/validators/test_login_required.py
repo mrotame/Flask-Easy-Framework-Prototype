@@ -2,9 +2,9 @@ import pytest
 from flask import Flask
 
 from easy_framework.auth import BaseAuthMethod
-from easy_framework.exceptions import InvalidSession
+from easy_framework.exception import InvalidSession
 from easy_framework.user import UserModel
-from easy_framework.validators import Login_required
+from easy_framework.validator import Login_required
 
 
 class TestLogin_Required():

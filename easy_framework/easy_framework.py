@@ -6,7 +6,7 @@ from flask import Flask
 from .auth import AuthManager
 from .auth.authView import AuthView
 from .database import Database
-from .exceptions.apiExceptions import ApiExceptions
+from .exception.apiExceptions import ApiExceptions
 from .user.userManager import UserManager
 from .user.userModel import UserModel
 from .auth import PasswordManager
