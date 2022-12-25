@@ -20,7 +20,7 @@ class App():
     viewList: list[View] = ViewList().viewList
 
     def __init__(self, test:bool=False, registerViews:bool=True,)->None:
-        logger.info("Iniciando API GeraFila...")
+        logger.info("Loading configs...")
         jwt_extended.JWTManager(self.app)
         CORS(self.app)
 
@@ -32,12 +32,12 @@ class App():
             self.registerViews()
 
     def registerViews(self):
-        logger.info("Cadastrando rotas...")
+        logger.info("Registering routes...")
         for item in self.viewList:
             for route in item.routes:
-                logger.debug(f"Rota encontrada: {route} cadastrado com sucesso")
+                logger.debug(f"Route detected: {route} - registered succesfull")
                 self.app.add_url_rule(route, view_func=item.as_view(item.name+'/'+route))
-            logger.debug(f"Rota cadastrado com sucesso")
+            logger.debug(f"All routes registered")
 
     def setConfigs(self):
         self.app.config.update({
@@ -48,7 +48,7 @@ class App():
         })
 
     def runApp(self)->None:
-        logger.info("Ininiciando app do flask")
+        logger.info("Starting flask app ")
         self.app.run(host='0.0.0.0', port="5005", debug=True)
 
 if __name__ == "__main__":
