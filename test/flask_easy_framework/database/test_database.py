@@ -1,4 +1,4 @@
-from ...conftest import ModelTest
+from test.testClasses import ModelTest
 
 from flask import Flask
 from sqlalchemy.orm import Session
