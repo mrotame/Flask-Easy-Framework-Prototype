@@ -1,4 +1,3 @@
-from test.conftest import SerializerTest
 from flask import Flask, request
 from marshmallow import fields
 from easy_framework.serializer import BaseSerializer
